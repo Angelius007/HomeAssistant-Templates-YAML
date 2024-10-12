@@ -1,0 +1,7 @@
+{% set batter_cons = states('sensor.powerstream_1230_battery_input_watts') | float(0) %}
+
+{% if batter_cons > 0 %}
+    {{ (batter_cons | float(0)) | round(3) }}
+{% else %}
+    0
+{% endif %}
