@@ -1,0 +1,16 @@
+{% set revente_reseau = states('sensor.revente_reseau') | float(0) %}
+{% set batterie_vers_maison = states('sensor.batterie_vers_maison') | float(0) %}
+
+{% if revente_reseau > 0 %}
+	{% if batterie_vers_maison > 0 %}
+		{% if revente_reseau - batterie_vers_maison > 0 %}
+			{{ batterie_vers_maison | round(3) }}
+		{% else %}
+			{{ revente_reseau | round(3) }}
+		{% endif %}
+	{% else %}
+		0
+	{% endif %}
+{% else %}
+    0
+{% endif %}
