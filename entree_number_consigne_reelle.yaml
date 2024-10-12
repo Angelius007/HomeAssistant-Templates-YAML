@@ -1,0 +1,16 @@
+{% set gaspillage_batterie = states('sensor.gaspillage_batterie') | float(0) %}
+{% set consigne_actuelle = states('number.powerstream_1230_custom_load_power_settings') | float(0) %}
+
+{% if gaspillage_batterie > 0 %}
+  {% if consigne_actuelle >= gaspillage_batterie %}
+    {{ (consigne_actuelle - gaspillage_batterie) | round(3) }}
+  {% else %}
+      70
+  {% endif %}
+{% else %}
+  {% if consigne_actuelle > 0 %}
+    {{ consigne_actuelle | round(3) }}
+  {% else %}
+      70
+  {% endif %}
+{% endif %}
