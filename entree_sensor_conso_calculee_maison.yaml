@@ -1,0 +1,5 @@
+{% set production_globale = states('sensor.production_globale') | float(0) %}
+{% set vue_shelly = states('sensor.conso_prod_power') | float(0) %}
+{% set panneaux_vers_batterie = states('sensor.charge_globale_batterie') | float(0) %}
+
+{{ (production_globale + vue_shelly - panneaux_vers_batterie | float(0)) | round(3) }}
