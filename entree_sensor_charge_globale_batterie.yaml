@@ -1,0 +1,8 @@
+{% set batter_cons = states('sensor.powerstream_1230_battery_input_watts') | float(0) %}
+{% set batter_prise = states('sensor.batterie_5429_power') | float(0) %}
+
+{% if batter_cons < 0 %}
+    {{ (-batter_cons + batter_prise) | round(3) }}
+{% else %}
+     {{ (batter_prise) | round(3) }}
+{% endif %}
