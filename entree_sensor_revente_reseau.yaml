@@ -1,0 +1,7 @@
+{% set revente_reseau = states('sensor.conso_prod_power') | float(0) %}
+
+{% if revente_reseau < 0 %}
+    {{ -revente_reseau | round(3) }}
+{% else %}
+    0
+{% endif %}
