@@ -1,0 +1,74 @@
+alias: Correction Conso estimé/shelly si injection trop importante
+description: >-
+  Redémarrage de la conso de la maison vue depuis le shelly ou en estimation
+  complémentaire prise périodiquement si détection d'un déphasage
+triggers:
+  - entity_id:
+      - timer.declencheur_5_min
+    from: null
+    to: idle
+    trigger: state
+    alias: Déclenchement périodique
+    id: Déclenchement périodique 5 min
+    enabled: false
+  - alias: Lorsque l'injection est > 50 W pendant 15 sec
+    trigger: numeric_state
+    entity_id:
+      - sensor.conso_prod_power
+    for:
+      hours: 0
+      minutes: 0
+      seconds: 15
+    below: -50
+    id: injection > 50 W pendant 15 sec
+    enabled: false
+  - trigger: numeric_state
+    entity_id:
+      - sensor.gaspillage_batterie
+    for:
+      hours: 0
+      minutes: 0
+      seconds: 20
+    above: 15
+conditions:
+  - alias: Lorsque Gaspillage est > 5 W
+    condition: numeric_state
+    entity_id: sensor.gaspillage_batterie
+    above: 15
+  - condition: numeric_state
+    entity_id: number.powerstream_1230_custom_load_power_settings
+    above: 70
+    alias: Lorsque la conso estimée de la maison est > 70 W
+actions:
+  - action: notify.persistent_notification
+    metadata: {}
+    data:
+      message: >-
+        "Conso maison : {{ states('sensor.conso_prod_power') }} - Injection
+        batterie {{ states('sensor.powerstream_1230_battery_input_watts') }}-
+        Gaspillage batterie {{ states('sensor.gaspillage_batterie') }} - 
+        Ancienne consigne : {{
+        states('number.powerstream_1230_custom_load_power_settings') }} - 
+        Nouvelle consigne : {{ states('number.consigne_reelle') }} "
+      title: Correction Charge maison à 70 W
+    alias: Notifier de l'action d'ajustement
+    enabled: false
+  - action: logbook.log
+    metadata: {}
+    data:
+      name: Ajustement shelly
+      message: >-
+        "Conso maison : {{ states('sensor.conso_prod_power') }} - Injection
+        batterie {{ states('sensor.powerstream_1230_battery_input_watts') }}-
+        Gaspillage batterie {{ states('sensor.gaspillage_batterie') }} - 
+        Ancienne consigne :  {{
+        states('number.powerstream_1230_custom_load_power_settings') }} -    
+        Nouvelle consigne : {{ states('number.consigne_reelle') }}"
+  - action: number.set_value
+    metadata: {}
+    data:
+      value: "{{ states('number.consigne_reelle') | float(70) }}"
+    target:
+      entity_id: number.powerstream_1230_custom_load_power_settings
+mode: queued
+max: 10
